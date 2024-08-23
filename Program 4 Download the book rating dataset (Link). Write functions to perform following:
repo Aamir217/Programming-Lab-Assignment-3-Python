@@ -1,0 +1,76 @@
+import pandas as pd
+import numpy as np
+from scipy import stats
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics.pairwise import cosine_similarity
+
+# Load the datasets
+books_df = pd.read_csv("./books.csv")
+ratings_df = pd.read_csv("./ratings.csv")
+
+# Display first 10 rows of each dataset
+print("First 10 rows of books DataFrame:")
+print(books_df.head(10))
+print("\nFirst 10 rows of ratings DataFrame:")
+print(ratings_df.head(10))
+
+# Calculate average ratings for each book
+average_ratings = ratings_df.groupby('book_id')['rating'].mean()
+average_ratings = average_ratings.reset_index().merge(books_df[['book_id', 'title']], on='book_id')
+
+# Find top 5 highest-rated books
+top_5_books = average_ratings.sort_values(by='rating', ascending=False).head(5)
+print("\nTop 5 highest-rated books:")
+print(top_5_books[['title', 'rating']])
+
+# Count books published each year
+books_per_year = books_df['publication_year'].value_counts().sort_index()
+print("\nNumber of books published each year:")
+print(books_per_year)
+
+# Filter books with 50 or more ratings
+ratings_count = ratings_df['book_id'].value_counts()
+popular_books = ratings_count[ratings_count >= 50].index
+filtered_books_df = books_df[books_df['book_id'].isin(popular_books)]
+print("\nBooks with 50 or more ratings:")
+print(filtered_books_df)
+
+# Find the most active user
+most_active_user = ratings_df['user_id'].value_counts().idxmax()
+most_ratings_count = ratings_df['user_id'].value_counts().max()
+print(f"\nUser {most_active_user} has rated the most books with {most_ratings_count} ratings.")
+
+# Find top 5 authors with most books
+top_authors = books_df['authors'].value_counts().head(5)
+print("\nTop 5 authors who have written the most books:")
+print(top_authors)
+
+# Calculate mean, median, and mode of ratings
+ratings_array = ratings_df['rating'].to_numpy()
+mean_rating = np.mean(ratings_array)
+median_rating = np.median(ratings_array)
+mode_rating = stats.mode(ratings_array).mode[0]
+print(f"\nMean rating: {mean_rating}")
+print(f"Median rating: {median_rating}")
+print(f"Mode rating: {mode_rating}")
+
+# Normalize ratings using StandardScaler
+scaler = StandardScaler()
+ratings_df['normalized_rating'] = scaler.fit_transform(ratings_df['rating'].values.reshape(-1, 1))
+print("\nNormalized ratings:")
+print(ratings_df[['rating', 'normalized_rating']].head(10))
+
+# Create user-item matrix
+user_item_matrix = ratings_df.pivot_table(index='user_id', columns='book_id', values='rating', fill_value=0)
+print("\nUser-item matrix (first 10 rows):")
+print(user_item_matrix.head(10))
+
+# Calculate covariance matrix
+covariance_matrix = np.cov(user_item_matrix, rowvar=False)
+print("\nCovariance matrix:")
+print(covariance_matrix)
+
+# Calculate user similarity using cosine similarity
+user_similarity = cosine_similarity(user_item_matrix)
+print("\nUser similarity matrix (first 10 users):")
+print(user_similarity[:10, :10])
