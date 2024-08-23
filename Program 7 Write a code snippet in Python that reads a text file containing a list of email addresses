@@ -1,0 +1,46 @@
+import re
+
+# Function to validate email using regex
+def validate_email(email):
+    # Regex pattern for basic email validation
+    email_regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+    return re.match(email_regex, email) is not None
+
+# Function to extract username and domain from an email
+def extract_domain_and_username(email):
+    username, domain = email.split('@')
+    return username, domain
+
+# Function to process the email file
+def process_email_file(file_path):
+    domain_dict = {}
+    
+    # Read emails from the file
+    with open(file_path, 'r') as file:
+        emails = file.read().splitlines()
+    
+    # Process each email
+    for email in emails:
+        # Remove whitespace and brackets/quotes if present
+        email = email.strip().strip('[]"')
+        
+        # Validate the email
+        if validate_email(email):
+            # Extract username and domain
+            username, domain = extract_domain_and_username(email)
+            
+            # Add to domain dictionary
+            if domain not in domain_dict:
+                domain_dict[domain] = []
+            domain_dict[domain].append(username)
+        else:
+            print(f"Invalid email found: {email}")
+    
+    return domain_dict
+
+# File path for the email list
+file_path = './emails.txt'  
+
+# Process the email file and print the result
+output = process_email_file(file_path)
+print(output)
