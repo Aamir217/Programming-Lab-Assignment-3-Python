@@ -1,0 +1,93 @@
+import random
+
+# Function to generate a 2D array of random numbers
+def generate_random_array(rows, cols):
+    return [[random.random() for _ in range(cols)] for _ in range(rows)]
+
+# Generate a 4x5 array of random numbers
+A = generate_random_array(4, 5)
+
+# Function to calculate basic statistics of the array
+def calculate_statistics(arr):
+    # Flatten the 2D array into a 1D list
+    flat_list = [item for sublist in arr for item in sublist]
+    n = len(flat_list)
+    
+    # Initialize variables for min, max, and sum
+    minimum = flat_list[0]
+    maximum = flat_list[0]
+    total_sum = 0
+    
+    # Calculate min, max, and sum in one pass
+    for num in flat_list:
+        if num < minimum:
+            minimum = num
+        if num > maximum:
+            maximum = num
+        total_sum += num
+    
+    # Calculate mean
+    mean = total_sum / n
+    
+    # Calculate median
+    sorted_list = sorted(flat_list)
+    if n % 2 == 1:
+        median = sorted_list[n // 2]
+    else:
+        median = (sorted_list[n // 2 - 1] + sorted_list[n // 2]) / 2
+    
+    # Calculate standard deviation
+    sum_squared_diff = sum((num - mean) ** 2 for num in flat_list)
+    std_dev = (sum_squared_diff / n) ** 0.5
+    
+    return minimum, maximum, median, mean, std_dev
+
+# Function to compute mean and variance along the first dimension
+def compute_mean_variance(arr):
+    rows = len(arr)
+    cols = len(arr[0])
+    mean_first_dim = [0] * cols
+    variance_first_dim = [0] * cols
+    
+    # Calculate mean and variance for each column
+    for j in range(cols):
+        column_sum = sum(arr[i][j] for i in range(rows))
+        mean_first_dim[j] = column_sum / rows
+        
+        variance_sum = sum((arr[i][j] - mean_first_dim[j]) ** 2 for i in range(rows))
+        variance_first_dim[j] = variance_sum / rows
+    
+    return mean_first_dim, variance_first_dim
+
+# Function to normalize and standardize the array
+def normalize_standardize(arr):
+    # Flatten the array and calculate min, max, mean, and std
+    flat_list = [item for sublist in arr for item in sublist]
+    arr_min = min(flat_list)
+    arr_max = max(flat_list)
+    arr_mean = sum(flat_list) / len(flat_list)
+    arr_std = (sum((x - arr_mean) ** 2 for x in flat_list) / len(flat_list)) ** 0.5
+    
+    # Normalize the array (scale to [0, 1])
+    A_normalized = [[(x - arr_min) / (arr_max - arr_min) for x in row] for row in arr]
+    # Standardize the array (zero mean, unit variance)
+    A_standardized = [[(x - arr_mean) / arr_std for x in row] for row in arr]
+    
+    return A_normalized, A_standardized
+
+# Calculate statistics
+minimum, maximum, median, mean, std_dev = calculate_statistics(A)
+mean_first_dim, variance_first_dim = compute_mean_variance(A)
+A_normalized, A_standardized = normalize_standardize(A)
+
+# Print results
+print("Array A:\n", A)
+print("\nMinimum:", minimum)
+print("Maximum:", maximum)
+print("Median:", median)
+print("Mean:", mean)
+print("Standard Deviation:", std_dev)
+print("\nMean along the first dimension:", mean_first_dim)
+print("Variance along the first dimension:", variance_first_dim)
+print("\nNormalized Array:\n", A_normalized)
+print("Standardized Array:\n", A_standardized)
