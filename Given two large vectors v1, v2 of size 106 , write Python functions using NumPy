@@ -1,0 +1,37 @@
+import numpy as np
+import time
+
+# Define the size of the vectors
+size = 10**6
+
+# Generate two random vectors of the specified size
+v1 = np.random.rand(size)
+v2 = np.random.rand(size)
+
+# Define a function for vectorized dot product using NumPy
+def vectorized_dot_product(v1, v2):
+    return np.dot(v1, v2)
+
+# Define a function for scalar dot product using a loop
+def scalar_dot_product(v1, v2):
+    dot_product = 0.0
+    for i in range(len(v1)):
+        dot_product += v1[i] * v2[i]
+    return dot_product
+
+# Measure time for vectorized approach
+start_time = time.time()
+vectorized_result = vectorized_dot_product(v1, v2)
+vectorized_time = time.time() - start_time
+
+# Measure time for scalar approach
+start_time = time.time()
+scalar_result = scalar_dot_product(v1, v2)
+scalar_time = time.time() - start_time
+
+# Print results and timing information
+print("Vectorized Dot Product Result:", vectorized_result)
+print("Scalar Dot Product Result:", scalar_result)
+print(f"Vectorized Approach Time: {vectorized_time:.5f} seconds")
+print(f"Scalar Approach Time: {scalar_time:.5f} seconds")
+print(f"Speedup: {scalar_time / vectorized_time:.2f}x")
