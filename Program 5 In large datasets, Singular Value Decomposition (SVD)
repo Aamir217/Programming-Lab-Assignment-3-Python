@@ -1,0 +1,48 @@
+import numpy as np
+
+# Function to perform Singular Value Decomposition (SVD)
+def perform_svd(A):
+    U, s, VT = np.linalg.svd(A, full_matrices=False)
+    S = np.diag(s)  # Convert singular values to diagonal matrix
+    return U, S, VT
+
+# Function to reconstruct the original matrix from SVD components
+def reconstruct_matrix(U, S, VT):
+    return np.dot(U, np.dot(S, VT))
+
+# Function to perform low-rank approximation using k singular values
+def low_rank_approximation(U, S, VT, k):
+    Uk = U[:, :k]  # Take first k columns of U
+    Sk = S[:k, :k]  # Take top-left k x k submatrix of S
+    VTk = VT[:k, :]  # Take first k rows of VT
+    return np.dot(Uk, np.dot(Sk, VTk))
+
+# Function to calculate the Frobenius norm of the difference between two matrices
+def calculate_reconstruction_error(original, reconstructed):
+    return np.linalg.norm(original - reconstructed, 'fro')
+
+# Generate a random 10x10 matrix
+A = np.random.rand(10, 10)
+
+# Perform SVD on matrix A
+U, S, VT = perform_svd(A)
+
+# Reconstruct matrix A from its SVD components
+A_reconstructed = reconstruct_matrix(U, S, VT)
+
+# Print original and reconstructed matrices
+print("Original Matrix A:\n", A)
+print("\nReconstructed Matrix A from SVD:\n", A_reconstructed)
+
+# Calculate and print the reconstruction error for full SVD
+reconstruction_error_full = calculate_reconstruction_error(A, A_reconstructed)
+print(f"\nReconstruction error with full SVD: {reconstruction_error_full}")
+
+# Perform low-rank approximations for k = 1 to 10
+ks = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+for k in ks:
+    # Compute low-rank approximation
+    A_approx_k = low_rank_approximation(U, S, VT, k)
+    # Calculate reconstruction error
+    error_k = calculate_reconstruction_error(A, A_approx_k)
+    print(f"Reconstruction error with k={k}: {error_k}")
