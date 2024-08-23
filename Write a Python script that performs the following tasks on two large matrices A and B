@@ -1,0 +1,42 @@
+import numpy as np
+
+# Generate two random 1000x1000 matrices
+A = np.random.rand(1000, 1000)
+B = np.random.rand(1000, 1000)
+
+# Perform element-wise operations
+C_add = A + B  # Addition
+C_sub = A - B  # Subtraction
+C_mul = A * B  # Multiplication
+C_div = np.divide(A, B, where=B!=0)  # Division, avoiding division by zero
+
+# Print results of element-wise operations
+print("Element-wise Addition:\n", C_add)
+print("Element-wise Subtraction:\n", C_sub)
+print("Element-wise Multiplication:\n", C_mul)
+print("Element-wise Division:\n", C_div)
+
+# Create a random vector with 1000 elements
+vector_row = np.random.rand(1000)  
+
+# Broadcasting: Add vector to each row of matrix A
+C_row_add = A + vector_row 
+
+# Create a random column vector with 1000 elements
+vector_col = np.random.rand(1000).reshape(1000, 1)
+
+# Broadcasting: Add column vector to each column of matrix A
+C_col_add = A + vector_col
+
+# Print results of broadcasting operations
+print("Broadcasting - Adding vector to each row:\n", C_row_add)
+print("Broadcasting - Adding vector to each column:\n", C_col_add)
+
+# Generate 1000 random scalars
+scalars = np.random.rand(1000)
+
+# Custom operation: Scale each row of A by a different scalar
+C_scaled = A * scalars[:, np.newaxis]
+
+# Print result of custom operation
+print("Custom Operation - Scaling each row by a different scalar:\n", C_scaled)
