@@ -2,110 +2,80 @@ import cv2
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Function to load a grayscale image
-def load_image(path):
-    image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-    return image
+# Load the image using OpenCV
+image = cv2.imread('image.png', cv2.IMREAD_GRAYSCALE)  # Load as grayscale for simplicity
 
-# Function to calculate basic statistics of an image
-def calculate_statistics(image):
-    mean_val = np.mean(image)
-    std_val = np.std(image)
-    min_val = np.min(image)
-    max_val = np.max(image)
-    return {
-        'mean': mean_val,
-        'std': std_val,
-        'min': min_val,
-        'max': max_val
-    }
+# Convert the image to a NumPy array
+image_array = np.array(image)
 
-# Function to plot histogram of pixel intensities
-def plot_histogram(image):
-    plt.hist(image.ravel(), bins=256, range=[0, 256], color='black', alpha=0.75)
-    plt.title('Histogram of Pixel Intensities')
-    plt.xlabel('Pixel Intensity')
-    plt.ylabel('Frequency')
-    plt.show()
+# a. Calculate Mean, Standard deviation, Minimum and Maximum pixel values
+mean = np.mean(image_array)
+std_dev = np.std(image_array)
+min_val = np.min(image_array)
+max_val = np.max(image_array)
 
-# Function to resize the image by taking every other pixel
-def resize_image(image):
-    height, width = image.shape
-    resized_image = image[::2, ::2]
-    return resized_image
+print(f"Mean: {mean}, Standard Deviation: {std_dev}, Min: {min_val}, Max: {max_val}")
 
-# Function to rotate the image 90 degrees clockwise
-def rotate_image(image):
-    return np.rot90(image, k=-1)
+# b. Plot the histogram of pixel intensities
+plt.figure(figsize=(10, 4))
+plt.hist(image_array.ravel(), bins=256, color='gray', alpha=0.7)
+plt.title('Histogram of Pixel Intensities')
+plt.xlabel('Pixel Intensity')
+plt.ylabel('Frequency')
+plt.show()
 
-# Function to display original, resized, and rotated images
-def display_images(original, resized, rotated):
-    plt.figure(figsize=(12, 4))
-    plt.subplot(1, 3, 1)
-    plt.title('Original Image')
-    plt.imshow(original, cmap='gray')
-    plt.axis('off')
-    plt.subplot(1, 3, 2)
-    plt.title('Resized Image')
-    plt.imshow(resized, cmap='gray')
-    plt.axis('off')
-    plt.subplot(1, 3, 3)
-    plt.title('Rotated Image')
-    plt.imshow(rotated, cmap='gray')
-    plt.axis('off')
-    plt.show()
+# c. Resize the image to half of its original dimensions using NumPy operations
+rows, cols = image_array.shape
+resized_image = image_array[::2, ::2]  # Halving the dimensions
 
-# Function to perform Singular Value Decomposition (SVD)
-def perform_svd(image):
-    U, s, VT = np.linalg.svd(image, full_matrices=False)
-    S = np.diag(s)
-    return U, S, VT
+# d. Perform a rotation of 90 degrees clockwise on the resized image
+rotated_image = np.rot90(resized_image, k=-1)  # k=-1 rotates 90 degrees clockwise
 
-# Function to compress the image using k singular values
-def compress_image(U, S, VT, k):
-    Uk = U[:, :k]
-    Sk = S[:k, :k]
-    VTk = VT[:k, :]
-    return np.dot(Uk, np.dot(Sk, VTk))
+# e. Display the original, resized, and rotated images side by side using Matplotlib
+plt.figure(figsize=(12, 4))
 
-# Function to plot original and compressed images
-def plot_compressed_images(original, compressed_images, k_values):
-    plt.figure(figsize=(15, 5))
-    plt.subplot(1, len(compressed_images) + 1, 1)
-    plt.title('Original Image')
-    plt.imshow(original, cmap='gray')
-    plt.axis('off')
-    for i, (compressed, k) in enumerate(zip(compressed_images, k_values), start=2):
-        plt.subplot(1, len(compressed_images) + 1, i)
-        plt.title(f'k={k}')
-        plt.imshow(compressed, cmap='gray')
-        plt.axis('off')
-    plt.show()
+plt.subplot(1, 3, 1)
+plt.title("Original Image")
+plt.imshow(image_array, cmap='gray')
+plt.axis('off')
 
-# Main execution
-image_path = './image.jpg'
-image = load_image(image_path)
+plt.subplot(1, 3, 2)
+plt.title("Resized Image")
+plt.imshow(resized_image, cmap='gray')
+plt.axis('off')
 
-# Calculate and print image statistics
-stats = calculate_statistics(image)
-print("Image Statistics:", stats)
+plt.subplot(1, 3, 3)
+plt.title("Rotated Image")
+plt.imshow(rotated_image, cmap='gray')
+plt.axis('off')
 
-# Plot histogram of pixel intensities
-plot_histogram(image)
+plt.show()
 
-# Resize and rotate the image
-resized_image = resize_image(image)
-rotated_image = rotate_image(resized_image)
+# f. Perform SVD on the image matrix
+U, S, Vt = np.linalg.svd(image_array, full_matrices=False)
 
-# Display original, resized, and rotated images
-display_images(image, resized_image, rotated_image)
-
-# Perform SVD on the image
-U, S, VT = perform_svd(image)
-
-# Compress the image using different k values
+# g. Retain only the top-k singular values and reconstruct the image
 k_values = [10, 20, 50]
-compressed_images = [compress_image(U, S, VT, k) for k in k_values]
+reconstructed_images = []
+for k in k_values:
+    S_k = np.zeros_like(S)
+    S_k[:k] = S[:k]
+    S_k_matrix = np.diag(S_k)
+    compressed_image = np.dot(U, np.dot(S_k_matrix, Vt))
+    reconstructed_images.append(compressed_image)
 
-# Plot original and compressed images
-plot_compressed_images(image, compressed_images, k_values)
+# h. Plot the original image and the compressed versions using Matplotlib
+plt.figure(figsize=(16, 4))
+
+plt.subplot(1, len(k_values) + 1, 1)
+plt.title("Original Image")
+plt.imshow(image_array, cmap='gray')
+plt.axis('off')
+
+for i, k in enumerate(k_values):
+    plt.subplot(1, len(k_values) + 1, i + 2)
+    plt.title(f"Compressed Image (k={k})")
+    plt.imshow(reconstructed_images[i], cmap='gray')
+    plt.axis('off')
+
+plt.show()
