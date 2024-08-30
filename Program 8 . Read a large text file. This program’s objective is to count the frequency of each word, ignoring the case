@@ -1,27 +1,12 @@
 import string
 from collections import defaultdict
 
-def load_stopwords():
-    stopwords = {
-        'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 'aren', 'as', 'at',
-        'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'can', 'could', 'd', 'did',
-        'didn', 'do', 'does', 'doesn', 'doing', 'don', 'down', 'during', 'each', 'few', 'for', 'from', 'further', 'had',
-        'hadn', 'has', 'hasn', 'have', 'haven', 'having', 'he', 'her', 'here', 'hers', 'herself', 'him', 'himself', 'his',
-        'how', 'i', 'if', 'in', 'into', 'is', 'isn', 'it', 'its', 'itself', 'just', 'll', 'm', 'me', 'mightn', 'more', 'most',
-        'mustn', 'my', 'myself', 'needn', 'no', 'nor', 'not', 'now', 'o', 'of', 'off', 'on', 'once', 'only', 'or', 'other',
-        'our', 'ours', 'ourselves', 'out', 'over', 'own', 're', 's', 'same', 'shan', 'she', 'should', 'shouldn', 'so', 't',
-        'than', 'that', 'the', 'their', 'theirs', 'them', 'themselves', 'then', 'there', 'these', 'they', 'this', 'those',
-        'through', 'to', 'too', 'under', 'until', 'up', 've', 'very', 'was', 'wasn', 'we', 'were', 'weren', 'what', 'when',
-        'where', 'which', 'while', 'who', 'whom', 'why', 'will', 'with', 'won', 'would', 'y', 'you', 'your', 'yours', 'yourself', 'yourselves'
-    }
-    return stopwords
-
 def preprocess_text(text):
     text = text.lower()
     text = text.translate(str.maketrans('', '', string.punctuation))
     return text
 
-def count_word_frequencies(file_path, stopwords):
+def count_word_frequencies(file_path):
     word_count = defaultdict(int)
 
     try:
@@ -30,7 +15,7 @@ def count_word_frequencies(file_path, stopwords):
                 line = preprocess_text(line)
                 words = line.split()
                 for word in words:
-                    if word and word not in stopwords:
+                    if word:
                         word_count[word] += 1
 
     except FileNotFoundError:
@@ -41,8 +26,7 @@ def count_word_frequencies(file_path, stopwords):
     return dict(word_count)
 
 file_path = './large_text_file.txt' 
-stopwords = load_stopwords()
-word_frequencies = count_word_frequencies(file_path, stopwords)
+word_frequencies = count_word_frequencies(file_path)
 
 for word, freq in word_frequencies.items():
     print(f"{word}: {freq}")
