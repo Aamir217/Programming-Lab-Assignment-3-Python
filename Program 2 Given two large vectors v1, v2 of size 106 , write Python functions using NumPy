@@ -29,9 +29,13 @@ start_time = time.time()
 scalar_result = scalar_dot_product(v1, v2)
 scalar_time = time.time() - start_time
 
+# Avoid division by zero by adding a small epsilon
+epsilon = 1e-10
+speedup = scalar_time / (vectorized_time + epsilon)
+
 # Print results and timing information
 print("Vectorized Dot Product Result:", vectorized_result)
 print("Scalar Dot Product Result:", scalar_result)
 print(f"Vectorized Approach Time: {vectorized_time:.5f} seconds")
 print(f"Scalar Approach Time: {scalar_time:.5f} seconds")
-print(f"Speedup: {scalar_time / vectorized_time:.2f}x")
+print(f"Speedup: {speedup:.2f}x")
